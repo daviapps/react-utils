@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-// import type { FieldValues, UseFormReturn } from "react-hook-form";
+
 import z, {
   ZodArray,
   ZodBoolean,
@@ -12,9 +12,11 @@ import z, {
   ZodString,
 } from "zod/v3";
 
+import { type UseFormReturn } from "react-hook-form";
+
 export function zodSchemaDefaults<S extends ZodObject<any>, T = z.infer<S>>(
   schema: S,
-  overrides?: T
+  overrides?: T,
 ): any {
   return (Object.entries(schema._def.shape()) as [keyof T, ZodSchema][]).reduce(
     (acc, [key, value]) => {
@@ -23,7 +25,7 @@ export function zodSchemaDefaults<S extends ZodObject<any>, T = z.infer<S>>(
       if (value instanceof ZodObject) {
         acc[key] = zodSchemaDefaults(
           value,
-          defaultValue
+          defaultValue,
         ) as unknown as T[keyof T];
       } else if (
         value instanceof ZodArray ||
@@ -55,7 +57,7 @@ export function zodSchemaDefaults<S extends ZodObject<any>, T = z.infer<S>>(
       }
       return acc;
     },
-    {} as T
+    {} as T,
   );
 }
 
@@ -64,10 +66,9 @@ export interface ServerValidationErrorResponse {
   fieldErrors: Map<string, Array<string>>;
 }
 
-export function zodServerResolver(
-  e: AxiosError,
-  form: any /*UseFormReturn<any>*/
-) {
+export function zodServerResolver(e: Error, form: UseFormReturn<any>) {
+  if (!(e instanceof AxiosError)) return;
+
   const data = e.response?.data as ServerValidationErrorResponse | undefined;
   if (!data) return;
 
