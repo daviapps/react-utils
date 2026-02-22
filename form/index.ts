@@ -14,18 +14,26 @@ import z, {
 
 import { type UseFormReturn } from "react-hook-form";
 
-export function zodSchemaDefaults<S extends ZodObject<any>, T = z.infer<S>>(
+export function zodSchemaDefaults<S extends z.ZodSchema, T = z.infer<S>>(
   schema: S,
   overrides?: T,
-): any {
-  return (Object.entries(schema._def.shape()) as [keyof T, ZodSchema][]).reduce(
+): T {
+  let shape = null;
+
+  if (schema instanceof ZodEffects) {
+    shape = schema.innerType().shape;
+  } else if (schema instanceof ZodObject) {
+    shape = schema.shape;
+  }
+
+  return (Object.entries(shape) as [keyof T, ZodSchema][]).reduce(
     (acc, [key, value]) => {
       const defaultValue = overrides && overrides[key];
 
       if (value instanceof ZodObject) {
         acc[key] = zodSchemaDefaults(
           value,
-          defaultValue,
+          // defaultValue,
         ) as unknown as T[keyof T];
       } else if (
         value instanceof ZodArray ||
