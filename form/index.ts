@@ -18,13 +18,20 @@ export function zodSchemaDefaults<S extends z.ZodSchema, T = z.infer<S>>(
   schema: S,
   overrides?: T,
 ): T {
+  console.log(schema);
+
   let shape = null;
 
   if (schema instanceof ZodEffects) {
     shape = schema.innerType().shape;
-  } else if (schema instanceof ZodObject) {
-    shape = schema.shape;
+    // } else if (schema instanceof ZodObject) {
+    //@ts-ignore
+  } else if (schema._def.typeName === "ZodObject") {
+    //@ts-ignore
+    shape = schema.shape || schema._def.shape();
   }
+
+  console.log(shape);
 
   return (Object.entries(shape) as [keyof T, ZodSchema][]).reduce(
     (acc, [key, value]) => {
