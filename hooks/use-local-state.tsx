@@ -55,17 +55,34 @@ export interface LocalStateProviderProps extends PropsWithChildren {
   storageKey?: string;
 }
 
+export function deserializeLocalState(storageKey = "local-state") {
+  return (
+    (typeof localStorage !== "undefined" &&
+      JSON.parse(localStorage.getItem(storageKey) || "null")) ||
+    {}
+  );
+}
+
 export function LocalStateProvider({
   children,
   storageKey = "local-state",
 }: LocalStateProviderProps) {
-  const [data, setData] = useState(
-    JSON.parse(localStorage.getItem(storageKey) || "null") || {},
-  );
+  const [data, setData] = useState(deserializeLocalState());
 
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    function storageHandler(event: StorageEvent) {
+      if (event.key === storageKey) {
+        setData(deserializeLocalState());
+      }
+    }
+
+    window.addEventListener("storage", storageHandler);
+    return () => window.removeEventListener("storage", storageHandler);
+  }, []);
 
   return (
     <LocalStateContext.Provider

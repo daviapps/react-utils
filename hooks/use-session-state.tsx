@@ -52,7 +52,9 @@ export function SessionStateProvider({
   storageKey = "session-state",
 }: SessionStateProviderProps) {
   const [data, setData] = useState(
-    JSON.parse(sessionStorage.getItem(storageKey) || "null") || {},
+    (typeof sessionStorage !== "undefined" &&
+      JSON.parse(sessionStorage.getItem(storageKey) || "null")) ||
+      {},
   );
 
   useEffect(() => {
