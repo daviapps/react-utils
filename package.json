@@ -1,6 +1,6 @@
 {
   "name": "@daviapps/react-utils",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "type": "module",
   "devDependencies": {
     "@types/axios": "^0.14.4",

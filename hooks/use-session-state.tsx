@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import {
   createContext,
   useContext,
@@ -11,27 +12,36 @@ import {
 export interface UseSessionStateProps<T> {
   key: string;
   initialState?: T | (() => T);
-  enabled?: boolean;
 }
 
 export function useSessionState<T>({
   key,
   initialState,
-  enabled = true,
-}: UseSessionStateProps<T>) {
+}: UseSessionStateProps<T>): [T, Dispatch<SetStateAction<T>>] {
   const context = useContext(SessionStateContext);
   if (!context) throw new Error("SessionStateProvider required");
 
-  const state = useState<T>(context.data[key] ?? (initialState as T));
-  const [value] = state;
+  const initialValue =
+    typeof initialState === "function"
+      ? (initialState as Function)()
+      : initialState;
+  const contextValue = (context.data[key] as T) || initialValue;
 
-  // Dispatch changes to context
-  useEffect(() => {
-    if (!enabled) return;
-    context.setData((prev) => ({ ...prev, [key]: value }));
-  }, [value, enabled]);
+  const handleDispatch = useCallback<Dispatch<SetStateAction<T>>>(
+    (dispatch) => {
+      context.setData((prev) => {
+        const stateValue = prev[key] as T;
+        const nextValue =
+          typeof dispatch === "function"
+            ? (dispatch as (prev: T) => T)(stateValue)
+            : dispatch;
+        return { ...prev, [key]: nextValue };
+      });
+    },
+    [],
+  );
 
-  return state;
+  return [contextValue, handleDispatch];
 }
 
 export type SessionStateContextProps<S> = {

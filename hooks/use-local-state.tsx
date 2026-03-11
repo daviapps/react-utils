@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
   type Dispatch,
   type PropsWithChildren,
   type SetStateAction,
@@ -11,35 +12,36 @@ import {
 export interface UseLocalStateProps<T> {
   key: string;
   initialState?: T | (() => T);
-  enabled?: boolean;
 }
 
 export function useLocalState<T>({
   key,
   initialState,
-  enabled = true,
-}: UseLocalStateProps<T>) {
+}: UseLocalStateProps<T>): [T, Dispatch<SetStateAction<T>>] {
   const context = useContext(LocalStateContext);
   if (!context) throw new Error("LocalStateProvider required");
 
-  const state = useState<T>(context.data[key] ?? (initialState as T));
-  const [value] = state;
+  const initialValue =
+    typeof initialState === "function"
+      ? (initialState as Function)()
+      : initialState;
+  const contextValue = (context.data[key] as T) || initialValue;
 
-  // Initial value
-  useEffect(() => {
-    if (!enabled) return;
-    const value = context.data[key];
-    if (!value) return;
-    state[1](value);
-  }, [enabled]);
+  const handleDispatch = useCallback<Dispatch<SetStateAction<T>>>(
+    (dispatch) => {
+      context.setData((prev) => {
+        const stateValue = prev[key] as T;
+        const nextValue =
+          typeof dispatch === "function"
+            ? (dispatch as (prev: T) => T)(stateValue)
+            : dispatch;
+        return { ...prev, [key]: nextValue };
+      });
+    },
+    [],
+  );
 
-  // Dispatch changes to context
-  useEffect(() => {
-    if (!enabled) return;
-    context.setData((prev) => ({ ...prev, [key]: value }));
-  }, [value, enabled]);
-
-  return state;
+  return [contextValue, handleDispatch];
 }
 
 export type LocalStateContextProps<S> = {
