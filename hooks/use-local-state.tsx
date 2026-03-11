@@ -30,7 +30,7 @@ export function useLocalState<T>({
   const handleDispatch = useCallback<Dispatch<SetStateAction<T>>>(
     (dispatch) => {
       context.setData((prev) => {
-        const stateValue = prev[key] as T;
+        const stateValue = (prev[key] as T) || initialValue;
         const nextValue =
           typeof dispatch === "function"
             ? (dispatch as (prev: T) => T)(stateValue)
@@ -38,7 +38,7 @@ export function useLocalState<T>({
         return { ...prev, [key]: nextValue };
       });
     },
-    [],
+    [initialValue],
   );
 
   return [contextValue, handleDispatch];
