@@ -27,12 +27,12 @@ export function useSessionState<T>({
       : initialState;
 
   // console.log(initialValue);
-  const contextValue = (context.data[key] as T) || initialValue;
+  const contextValue = (context.data[key] as T) ?? initialValue;
 
   const handleDispatch = useCallback<Dispatch<SetStateAction<T>>>(
     (dispatch) => {
       context.setData((prev) => {
-        const stateValue = (prev[key] as T) || initialValue;
+        const stateValue = (prev[key] as T) ?? initialValue;
         const nextValue =
           typeof dispatch === "function"
             ? (dispatch as (prev: T) => T)(stateValue)

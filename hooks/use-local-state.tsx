@@ -25,12 +25,12 @@ export function useLocalState<T>({
     typeof initialState === "function"
       ? (initialState as Function)()
       : initialState;
-  const contextValue = (context.data[key] as T) || initialValue;
+  const contextValue = (context.data[key] as T) ?? initialValue;
 
   const handleDispatch = useCallback<Dispatch<SetStateAction<T>>>(
     (dispatch) => {
       context.setData((prev) => {
-        const stateValue = (prev[key] as T) || initialValue;
+        const stateValue = (prev[key] as T) ?? initialValue;
         const nextValue =
           typeof dispatch === "function"
             ? (dispatch as (prev: T) => T)(stateValue)
@@ -38,7 +38,7 @@ export function useLocalState<T>({
         return { ...prev, [key]: nextValue };
       });
     },
-    [initialValue],
+    [],
   );
 
   return [contextValue, handleDispatch];
