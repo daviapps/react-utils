@@ -7,5 +7,5 @@
     "**/Thumbs.db": true,
     "**/node_modules": true
   },
-  "cSpell.words": ["daviapps"]
+  "cSpell.words": ["daviapps", "Undoable"]
 }

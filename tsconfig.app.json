@@ -5,7 +5,6 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client"],
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -29,5 +28,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "_dep/layouts", "_dep/views"]
+  "include": ["src", "_dep/layouts", "_dep/views", "form", "hooks", "index.ts"]
 }
