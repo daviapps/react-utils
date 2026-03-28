@@ -1,13 +1,29 @@
 {
   "name": "@daviapps/react-utils",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "type": "module",
   "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./hooks": "./hooks/index.ts",
+    "./form": "./form/index.ts"
+  },
   "peerDependencies": {
     "react": ">=18.0.0",
     "axios": "^1.0.0",
     "zod": "^3.0.0",
     "react-hook-form": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "axios": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "react": "^18.0.0",
